@@ -4,7 +4,8 @@ This module handles all functions that will be used in the rest of the program
 
 import csv
 import json
-from typing import List
+import re
+from typing import List, Any
 
 
 def csv_file_to_json(file_path: str) -> List[str]:
@@ -18,9 +19,18 @@ def csv_file_to_json(file_path: str) -> List[str]:
     return data
 
 
+def read_json_from_file(file_path: str) -> List[Any]:
+    """
+    :param file_path: json file loaded from a directory
+    :return: json data that can be used to perform tasks
+    """
+    with open(file_path, 'r') as file:
+        json_data = json.load(file)
+    return json_data
+
+
 def save_json_data(output: str, data_source: str) -> None:
     """
-    :rtype: object
     :param output: this is the directory where the output data is saved
     :param data_source: this is the directory where the input data is saved
     :return: None
@@ -29,15 +39,11 @@ def save_json_data(output: str, data_source: str) -> None:
         json.dump(csv_file_to_json(data_source), json_file, indent=2)
 
 
-def data_cleaner(json_data: List[str]) -> List[str]:
-    """
-    :param json_data: input file in json
-    :return: cleaned data in json
-    """
-    filtered_records = []
-    for record in json_data:
-        try:
-            filtered_records.append(int(record["Rating"]))
-        except ValueError:
-            pass
-    return filtered_records
+def convert_rating_to_int(rating: Any):
+    numeric_part = re.search(r'\d+', rating)
+    return int(numeric_part.group()) if numeric_part else None
+
+
+def clean_rating(json_data):
+    json_data["Rating"] = convert_rating_to_int(json_data["Rating"])
+    return json_data
