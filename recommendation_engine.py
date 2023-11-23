@@ -21,23 +21,36 @@ user_similarity = cosine_similarity(user_movie_matrix)
 
 
 def recommend_movies_with_names(user, top_n=5):
-    user_id = user_ids[df['User'] == user].values[0]
-    user_ratings = user_movie_matrix.loc[user_id]
+    user_indices = np.where(df['User'] == user)[0]
 
-    similar_users = user_similarity[user_id].argsort()[::-1][1:]
-    weighted_sum = np.dot(user_similarity[user_id, similar_users], user_movie_matrix.iloc[similar_users].values)
+    if len(user_indices) == 0:
+        user_ratings = df[df['User'] == user]['Rating'].values.reshape(1, -1)
 
-    predicted_ratings = weighted_sum / np.sum(np.abs(user_similarity[user_id, similar_users]))
-    unrated_movies = user_ratings[user_ratings == 0].index
-    recommendations = pd.Series(predicted_ratings, index=user_movie_matrix.columns)[unrated_movies].sort_values(
-        ascending=False)
+        if user_ratings.size == 0:
+            avg_ratings = df.groupby('Movie')['Rating'].mean()
+            unrated_movies = df['Movie'].unique()
+            recommendations = pd.Series(avg_ratings.loc[unrated_movies].values, index=unrated_movies).sort_values(ascending=False)
+        else:
+            user_similarities = cosine_similarity(user_ratings, user_movie_matrix)
+            weighted_sum = np.dot(user_similarities, user_movie_matrix.values.T)
+            predicted_ratings = weighted_sum / np.sum(np.abs(user_similarities))
+            unrated_movies = np.where(user_ratings == 0)[1]
+            recommendations = pd.Series(predicted_ratings[0, unrated_movies], index=unrated_movies).sort_values(ascending=False)
+    else:
+        user_id = user_ids.iloc[user_indices[0]]
+        user_ratings = user_movie_matrix.loc[user_id]
+        similar_users = user_similarity[user_id].argsort()[::-1][1:]  # Exclude the user itself
+        weighted_sum = np.dot(user_similarity[user_id, similar_users], user_movie_matrix.iloc[similar_users].values)
+        predicted_ratings = weighted_sum / np.sum(np.abs(user_similarity[user_id, similar_users]))
+        unrated_movies = user_ratings[user_ratings == 0].index
+        recommendations = pd.Series(predicted_ratings, index=user_movie_matrix.columns)[unrated_movies].sort_values(ascending=False)
 
-    movie_names = df['Movie'].unique()[recommendations.index]
-
+    movie_names = df.loc[unrated_movies, 'Movie'].unique()
     recommended_movies = pd.DataFrame({
-        'Movie': movie_names,
+        'Movie': movie_names[:len(recommendations)],
         'Predicted Rating': recommendations.values
     }).head(top_n)
 
     return recommended_movies
+
 
