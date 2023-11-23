@@ -39,11 +39,11 @@ def save_json_data(output: str, data_source: str) -> None:
         json.dump(csv_file_to_json(data_source), json_file, indent=2)
 
 
-def convert_rating_to_int(rating: Any):
+def convert_rating_to_int(rating):
     numeric_part = re.search(r'\d+', rating)
     return int(numeric_part.group()) if numeric_part else None
 
 
-def clean_rating(json_data):
-    json_data["Rating"] = convert_rating_to_int(json_data["Rating"])
-    return json_data
+def clean_rating(entry):
+    entry["Rating"] = convert_rating_to_int(entry["Rating"])
+    return entry
