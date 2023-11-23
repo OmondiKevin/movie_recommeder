@@ -3,7 +3,10 @@ This main module runs the whole program and is the entry point for the whole pro
 """
 import json
 import logging
+import recommendation_engine
 from datetime import datetime
+
+from tabulate import tabulate
 
 import tasks
 
@@ -36,4 +39,16 @@ def compiler() -> None:
 
 
 if __name__ == '__main__':
-    variable = 0
+    """
+    This section runs the recommender engine to predict movies based on ratings
+    """
+    print("Welcome to Movie Recommender Application. Use the choices below to get what fits you best\n\n1. You will "
+          "need to key in your name to see get personalized recommendations.\n2. Press 0 to Exit the "
+          "Application\n\n.")
+
+    username = str(input('What is your First Name? ')).replace(" ", "")
+    movies_recommended = int(input('\n\nHow many movies to you want to list? '))
+
+    top_user_recommendations_with_names = tasks.recommend_movies_with_names("username", movies_recommended)
+    print('\n\nBelow are your recommendations in a Table, Enjoy:\n',
+          tabulate(top_user_recommendations_with_names, headers='keys', tablefmt='fancy_grid'))
