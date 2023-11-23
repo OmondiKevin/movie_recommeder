@@ -10,12 +10,30 @@ import tasks
 DATA_SOURCE = 'data_source/'
 OUTPUT_DIR = 'output/'
 LOGS = 'logs/'
-CLEAN_DATA = 'clean_data'
+CLEAN_DATA = 'clean_data/'
 
-if __name__ == '__main__':
+logging.basicConfig(filename=f'{LOGS}code_labs_logging.log', level=logging.INFO)
+
+
+def compiler() -> None:
+    """The call below reads csv file and saves the output as a json in {OUTPUT_DIR}"""
     tasks.save_json_data(f'{OUTPUT_DIR}data.json', f'{DATA_SOURCE}data.csv')
 
-    tasks.data_cleaner(f'{OUTPUT_DIR}data.json')
+    logging.info(f'CSV to JSON conversion was completed successfully at {datetime.now()}')
 
-    logging.basicConfig(filename=f'{LOGS}code_labs_logging.log', level=logging.INFO)
-    logging.info(f'This operation was completed successfully at {datetime.now()}')
+    """
+        The solution below reads a json data and cleans the "Rating" values provided.
+        """
+    temp_json_file = tasks.read_json_from_file(f'{OUTPUT_DIR}data.json')
+
+    """The solution below cleans the "Rating" values by converting the numbers to integers where possible and saves 
+    it to the output directory"""
+    cleaned_data_list = [tasks.clean_rating(entry) for entry in temp_json_file]
+    with open(f'{CLEAN_DATA}cleaned_data.json', 'w') as output_file:
+        json.dump(cleaned_data_list, output_file, indent=2)
+
+    logging.info(f'JSON file data cleaning was completed successfully at {datetime.now()}')
+
+
+if __name__ == '__main__':
+    variable = 0
