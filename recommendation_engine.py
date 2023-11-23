@@ -7,10 +7,11 @@ import pandas as pd
 import numpy as np
 from main import CLEAN_DATA
 from tasks import read_json_from_file
+from tabulate import tabulate
 from sklearn.metrics.pairwise import cosine_similarity
 
 df = pd.DataFrame(read_json_from_file(f'{CLEAN_DATA}cleaned_data.json'))
-df["Rating"] = df["Rating"].fillna(df['Rating'].mean(), inplace=True)
+df['Rating'].fillna(df['Rating'].mean(), inplace=True)
 
 user_ids = df['User'].astype('category').cat.codes
 movie_ids = df['Movie'].astype('category').cat.codes

@@ -3,11 +3,11 @@ This main module runs the whole program and is the entry point for the whole pro
 """
 import json
 import logging
-import recommendation_engine
 from datetime import datetime
 
 from tabulate import tabulate
 
+import recommendation_engine
 import tasks
 
 DATA_SOURCE = 'data_source/'
@@ -47,8 +47,9 @@ if __name__ == '__main__':
           "Application\n\n.")
 
     username = str(input('What is your First Name? ')).replace(" ", "")
-    movies_recommended = int(input('\n\nHow many movies to you want to list? '))
+    movies_recommended = int(input('\nHow many movies to you want to list? '))
 
-    top_user_recommendations_with_names = tasks.recommend_movies_with_names("username", movies_recommended)
+    top_user_recommendations_with_names = recommendation_engine.recommend_movies_with_names("username",
+                                                                                            top_n=movies_recommended)
     print('\n\nBelow are your recommendations in a Table, Enjoy:\n',
           tabulate(top_user_recommendations_with_names, headers='keys', tablefmt='fancy_grid'))
