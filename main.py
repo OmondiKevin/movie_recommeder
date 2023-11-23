@@ -5,6 +5,10 @@ import json
 import logging
 from datetime import datetime
 
+import pandas as pd
+from tabulate import tabulate
+
+import recommendation_engine
 import tasks
 
 DATA_SOURCE = 'data_source/'
@@ -36,4 +40,20 @@ def compiler() -> None:
 
 
 if __name__ == '__main__':
-    variable = 0
+    """
+    This section runs the recommender engine to predict movies based on ratings
+    """
+    print("Welcome to Movie Recommender Application. Use the choices below to get what fits you best\n\n1. You will "
+          "need to key in your name to see get personalized recommendations.\n2. Press 0 to Exit the "
+          "Application\n\n.")
+
+    username = str(input('What is your First Name? ')).replace(" ", "")
+    movies_recommended = int(input('\nHow many movies to you want to list? '))
+
+    top_user_recommendations_with_names = recommendation_engine.recommend_movies_with_names('Alice',
+                                                                                            top_n=3)
+
+    if isinstance(top_user_recommendations_with_names, pd.DataFrame):
+        print(tabulate(top_user_recommendations_with_names, headers='keys', tablefmt='fancy_grid'))
+    else:
+        print(top_user_recommendations_with_names)
